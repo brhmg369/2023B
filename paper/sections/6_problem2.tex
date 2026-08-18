@@ -9,6 +9,15 @@
   \label{eq:q2_alpha_eff}
 \end{equation}
 
+坡面、航向与扫描平面的空间关系如图~\ref{fig:q2_3d_geometry} 所示：红色箭头为坡面法向在水平面的投影，深蓝线为测线航向，金色面为垂直测线的扫描平面，两者夹角即 $\beta$；扫描平面与斜坡的交线坡度就是 $\alpha_{\mathrm{eff}}$。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\textwidth]{../figures/q2/fig_q2_3d_geometry.pdf}
+  \caption{任意航向下海平面、坡面与扫描平面的三维几何关系}
+  \label{fig:q2_3d_geometry}
+\end{figure}
+
 船位处水深由测线方向上的坡面高程变化确定。设测量船距海域中心点的距离为 $r$（海里），换算为 $s=1852r$ 米后，
 
 \begin{equation}
@@ -26,7 +35,7 @@
   \label{eq:q2_width}
 \end{equation}
 
-取 $\theta=120^\circ$、$\alpha=1.5^\circ$、$D_0=120\text{ m}$，对 $\beta=0^\circ,45^\circ,\dots,315^\circ$ 与 $r=0,0.3,\dots,2.1$ 海里代入式 \eqref{eq:q2_depth}--\eqref{eq:q2_width}，结果如表 4 所示。
+取 $\theta=120^\circ$、$\alpha=1.5^\circ$、$D_0=120\text{ m}$，对 $\beta=0^\circ,45^\circ,\dots,315^\circ$ 与 $r=0,0.3,\dots,2.1$ 海里代入式 \eqref{eq:q2_depth}--\eqref{eq:q2_width}，结果如表~\ref{tab:q2} 所示。
 
 \begin{table}[H]
   \centering
@@ -50,15 +59,24 @@
   \end{tabular}
 \end{table}
 
-在 $\beta=0^\circ$ 方向，覆盖宽度随船位距离由 $415.69\text{ m}$ 增至 $768.48\text{ m}$；在 $\beta=180^\circ$ 方向则随距离由 $415.69\text{ m}$ 降至 $62.90\text{ m}$；$\beta=90^\circ$ 与 $270^\circ$ 方向覆盖宽度不随距离变化，恒为 $416.55\text{ m}$。$45^\circ$、$135^\circ$、$225^\circ$、$315^\circ$ 方向介于上述情形之间，且关于 $\beta=90^\circ$ 与 $270^\circ$ 对称。空间分布见图 3。
+在 $\beta=0^\circ$ 方向，覆盖宽度随船位距离由 $415.69\text{ m}$ 增至 $768.48\text{ m}$；在 $\beta=180^\circ$ 方向则随距离由 $415.69\text{ m}$ 降至 $62.90\text{ m}$；$\beta=90^\circ$ 与 $270^\circ$ 方向覆盖宽度不随距离变化，恒为 $416.55\text{ m}$。$45^\circ$、$135^\circ$、$225^\circ$、$315^\circ$ 方向介于上述情形之间，且关于 $\beta=90^\circ$ 与 $270^\circ$ 对称。方向与距离两个维度上的整体变化见图~\ref{fig:q2_heatmap}。
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.78\textwidth]{../figures/q2/fig_q2_heatmap.pdf}
-  \caption{覆盖宽度随测线方向夹角与船位距离的变化}
+  \caption{覆盖宽度随测线方向夹角与船位距离变化的二维投影}
   \label{fig:q2_heatmap}
+\end{figure}
+
+覆盖宽度的三维曲面形态见图~\ref{fig:q2_width_surface}：曲面沿 $\beta=0^\circ$ 方向随距离单调抬升、沿 $\beta=180^\circ$ 方向单调下降，在 $\beta=90^\circ$ 与 $270^\circ$ 方向保持等高，与表~\ref{tab:q2} 的数值一致。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\textwidth]{../figures/q2/fig_q2_width_surface.pdf}
+  \caption{覆盖宽度随测线方向夹角与船位距离变化的三维曲面}
+  \label{fig:q2_width_surface}
 \end{figure}
 
 \subsection{特殊航向检验}
 
-当 $\beta=0^\circ$ 或 $180^\circ$ 时，测线方向沿坡面法向的水平投影，垂直测线剖面沿等深线方向，$\alpha_{\mathrm{eff}}=0$，公式退化为平底形式 $W=2D\tan(\theta/2)$，覆盖宽度仅随船位水深变化；当 $\beta=90^\circ$ 或 $270^\circ$ 时，船沿等深线运动，$D(r,\beta)=D_0$，覆盖宽度不随距离变化，与表 4 中这两行恒为 $416.55\text{ m}$ 一致。整体上覆盖宽度随船位水深增大而增大，$\beta=0^\circ$ 行随距离递增、$\beta=180^\circ$ 行随距离递减，与式 \eqref{eq:q2_depth} 中水深项的符号一致。
+当 $\beta=0^\circ$ 或 $180^\circ$ 时，测线方向沿坡面法向的水平投影，垂直测线剖面沿等深线方向，$\alpha_{\mathrm{eff}}=0$，公式退化为平底形式 $W=2D\tan(\theta/2)$，覆盖宽度仅随船位水深变化；当 $\beta=90^\circ$ 或 $270^\circ$ 时，船沿等深线运动，$D(r,\beta)=D_0$，覆盖宽度不随距离变化，与表~\ref{tab:q2} 中这两行恒为 $416.55\text{ m}$ 一致。整体上覆盖宽度随船位水深增大而增大，$\beta=0^\circ$ 行随距离递增、$\beta=180^\circ$ 行随距离递减，与式 \eqref{eq:q2_depth} 中水深项的符号一致。
