@@ -34,3 +34,19 @@ python code/q2_multibeam_model.py
 ```
 
 程序参数来自题面：换能器开角 `120 deg`，坡度 `1.5 deg`，中心水深 `120 m`，距离为 `0` 到 `2.1 NM`，测线方向夹角为 `0` 到 `315 deg`。
+
+## 问题三
+
+已完成内容：
+
+- `code/q3_survey_line_design.py`：规则单坡面矩形海域的测线布设递推优化程序；
+- `result3.xlsx`：问题三推荐测线方案、坐标与约束校验；
+- `docs/q3_paper_writer_handoff.md`：写给论文手的问题三建模交接。
+
+运行方式：
+
+```powershell
+python code/q3_survey_line_design.py
+```
+
+程序参数来自题面：矩形海域南北长 `2 NM`、东西宽 `4 NM`，中心水深 `110 m`，西深东浅，坡度 `1.5 deg`，换能器开角 `120 deg`。推荐方案为沿等深线南北向布设 `34` 条测线，总长度 `125936 m`。
