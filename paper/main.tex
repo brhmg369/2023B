@@ -1,0 +1,133 @@
+% !TEX program = xelatex
+\documentclass[fontset=windows, 12pt, a4paper]{ctexart}
+
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\IfFontExistsTF{Times New Roman}{\setmainfont{Times New Roman}}{}
+\IfFontExistsTF{Consolas}{\setmonofont{Consolas}}{}
+
+\linespread{1.43}
+\setlength{\parindent}{2em}
+
+\ctexset{
+  section/number       = \chinese{section},
+  subsection/number    = \arabic{section}.\arabic{subsection},
+  subsubsection/number = \arabic{section}.\arabic{subsection}.\arabic{subsubsection},
+}
+
+\usepackage{titlesec}
+\titleformat{\section}
+  {\centering\fontsize{17.3pt}{20.8pt}\heiti\bfseries}
+  {\chinese{section}、}{1em}{}
+\titleformat{\subsection}
+  {\fontsize{14.45pt}{17.4pt}\heiti\bfseries}
+  {\arabic{section}.\arabic{subsection}}{1em}{}
+\titleformat{\subsubsection}
+  {\fontsize{12.05pt}{14.5pt}\heiti\bfseries}
+  {\arabic{section}.\arabic{subsection}.\arabic{subsubsection}}{1em}{}
+\titlespacing{\section}       {0pt}{1.25em}{0.82em}
+\titlespacing{\subsection}    {0pt}{1.15em}{0.55em}
+\titlespacing{\subsubsection} {0pt}{1.15em}{0.55em}
+
+\usepackage{tocloft}
+\renewcommand{\cftsecfont}{\heiti\bfseries}
+\renewcommand{\cftsecpagefont}{\heiti\bfseries}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftsubsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftsubsubsecleader}{\cftdotfill{\cftdotsep}}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{black!3},
+  frame=single,
+  framesep=6pt,
+  rulecolor=\color{black!30},
+  framerule=0.8pt,
+  breaklines=true,
+  showstringspaces=false,
+  columns=fullflexible,
+  keepspaces=true,
+}
+
+\pagestyle{plain}
+
+\newcommand{\papertitle}[1]{%
+  \thispagestyle{empty}%
+  \begin{center}
+    {\fontsize{17.3pt}{22pt}\bfseries #1}
+  \end{center}
+  \vspace{1em}
+}
+\newcommand{\abstractcn}[2]{%
+  \thispagestyle{empty}%
+  \begin{center}{\fontsize{14pt}{17pt}\bfseries 摘要}\end{center}
+  #1\par
+  \vspace{1em}
+  {\heiti\bfseries 关键字：}#2\par
+  \newpage
+}
+\makeatletter
+\newcommand{\tocpage}{%
+  \setcounter{page}{1}%
+  \begin{center}
+    {\fontsize{17.3pt}{20.8pt}\heiti\bfseries 目录}
+  \end{center}
+  \vspace{0.5em}
+  \@starttoc{toc}%
+  \newpage
+}
+\makeatother
+\newcommand{\referencescn}{%
+  \addcontentsline{toc}{section}{参考文献}%
+  \input{references}%
+}
+\newcommand{\appendixcn}{%
+  \section*{附录 A\quad 核心代码}%
+  \addcontentsline{toc}{section}{附录 A\quad 核心代码}%
+  \input{sections/A_code}%
+}
+
+\begin{document}
+
+\papertitle{多波束测线覆盖宽度建模与最短测线优化设计}
+
+\abstractcn{%
+本文针对 2023 年高教社杯全国大学生数学建模竞赛 B 题，研究多波束测深系统的覆盖宽度、相邻条带重叠率与测线布设问题。
+
+针对问题一，本文在与测线方向垂直的二维剖面内建立斜坡多波束覆盖的几何模型。以测线位置 $x$ 的水平距离为变量，给出水深 $D(x)=D_0-x\tan\alpha$，由声束边界与坡面交点推导左右半覆盖宽度 $B_L,B_R$ 及覆盖宽度 $W=B_L+B_R$，并以“当前条带宽度”为分母定义相邻条带重叠率 $\eta_i=O_i/W(x_i)$。代入开角 $120^\circ$、坡度 $1.5^\circ$、中心水深 $70\text{ m}$，得到覆盖宽度由 $-800\text{ m}$ 处的 $315.71\text{ m}$ 单调减小至 $800\text{ m}$ 处的 $170.27\text{ m}$，相邻重叠率由 $35.70\%$ 降至 $-12.36\%$，说明浅水侧会出现漏测。模型在 $\alpha=0$ 时退化为平底公式 $W=2D\tan(\theta/2)$，验证了模型正确性。
+
+针对问题二，本文将二维模型推广到三维坡面。通过坡面法向水平投影与测线方向的夹角 $\beta$，给出船位水深 $D(r,\beta)=D_0+s\tan\alpha\cos\beta$ 与垂直测线剖面的等效坡度 $\alpha_{\mathrm{eff}}=\arctan(\tan\alpha\sin\beta)$，再代入二维覆盖宽度公式。结果表明 $\beta=90^\circ,270^\circ$ 时船沿等深线运动、覆盖宽度恒为 $416.55\text{ m}$；$\beta=0^\circ$ 时随距离增加覆盖宽度由 $415.69\text{ m}$ 增至 $768.48\text{ m}$，与深浅方向变化一致。
+
+针对问题三，本文在规则单坡面矩形海域内建立以测线总长度最小为目标、以完全覆盖和 $10\%\sim20\%$ 重叠率为约束的优化问题。采用“沿等深线南北向布设 + 贪心递推”求解，每步取重叠率下限 $10\%$ 以最大化间距，得到 $34$ 条测线，总长度 $125936.00\text{ m}$（$68.00$ 海里）；东西边界均被覆盖且相邻重叠率全部为 $10.00\%$，并验证少一条测线将出现 $25.76\text{ m}$ 缺口，说明在该方向下测线数已不可再减少。
+
+针对问题四，本文利用附件 $201\times251$ 水深网格估计东西向局部坡度，采用南北向分带递推布线和网格覆盖仿真评价。比较全域、$1.00$、$0.50$、$0.25\text{ NM}$ 四种分带方案后，推荐 $0.50\text{ NM}$ 分带方案：测线线段 $461$ 段，总长度 $426886.00\text{ m}$，漏测率为 $0.00\%$，重叠率超过 $20\%$ 的部分总长 $5481.92\text{ m}$，在完全覆盖前提下兼顾了测线长度、冗余与可执行性。%
+}{%
+多波束测深 \quad 覆盖宽度 \quad 重叠率 \quad 几何建模 \quad 测线优化 \quad 递推布线%
+}
+
+\tocpage
+
+\input{sections/1_restatement}
+\input{sections/2_analysis}
+\input{sections/3_assumptions}
+\input{sections/4_symbols}
+\input{sections/5_problem1}
+\input{sections/6_problem2}
+\input{sections/7_problem3}
+\input{sections/8_problem4}
+\input{sections/9_sensitivity}
+\input{sections/10_evaluation}
+
+\newpage
+\referencescn
+\newpage
+\appendixcn
+
+\end{document}

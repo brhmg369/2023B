@@ -1,0 +1,92 @@
+\section{问题一的模型建立与求解}
+
+\subsection{建模思路}
+
+以海域中心点为原点，在与测线方向垂直的二维剖面内建立水平坐标 $x$，取 $x>0$ 为浅水上坡方向、$x<0$ 为深水下坡方向，垂直向下为水深正方向。设换能器位于测线位置 $x$ 处，半开角为 $\phi=\theta/2$。声束左右边界与斜坡海底相交，形成左右两个半覆盖宽度，其水平投影之和即为条带覆盖宽度 $W(x)$，如图 1 所示。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\textwidth]{../figures/q1/fig_q1_geometry.pdf}
+  \caption{二维斜坡剖面的覆盖宽度几何示意}
+  \label{fig:q1_geometry}
+\end{figure}
+
+\subsection{水深模型}
+
+由坡度定义，位置 $x$ 处的海水深度沿水平方向线性变化：
+
+\begin{equation}
+  D(x)=D_0-x\tan\alpha.
+  \label{eq:q1_depth}
+\end{equation}
+
+\subsection{覆盖宽度模型}
+
+设声束边界与坡面的交点分别位于测线左右两侧。由正弦定理或射线与直线交点几何关系，可得左右半覆盖宽度的水平投影为
+
+\begin{equation}
+  B_L(x)=\frac{D(x)\sin\phi\cos\alpha}{\cos(\phi+\alpha)},\qquad
+  B_R(x)=\frac{D(x)\sin\phi\cos\alpha}{\cos(\phi-\alpha)}.
+  \label{eq:q1_half}
+\end{equation}
+
+条带覆盖宽度的水平投影为
+
+\begin{equation}
+  W(x)=B_L(x)+B_R(x)
+      =D(x)\sin\phi\cos\alpha
+      \left[\frac{1}{\cos(\phi+\alpha)}+\frac{1}{\cos(\phi-\alpha)}\right].
+  \label{eq:q1_width}
+\end{equation}
+
+\subsection{相邻条带重叠率模型}
+
+设第 $i-1$ 条测线与第 $i$ 条测线的水平间距为 $d_i=x_i-x_{i-1}$。相邻条带的重叠宽度取两条带相交的水平宽度
+
+\begin{equation}
+  O_i=B_R(x_{i-1})+B_L(x_i)-d_i.
+  \label{eq:q1_overlap_width}
+\end{equation}
+
+重叠率采用“相对当前条带覆盖宽度”的口径，并保留负值以表示漏测：
+
+\begin{equation}
+  \eta_i=\frac{O_i}{W(x_i)}\times100\%.
+  \label{eq:q1_overlap}
+\end{equation}
+
+当 $\alpha=0$ 时，式 \eqref{eq:q1_half} 退化为 $B_L=B_R=D\tan\phi$，进而 $W=2D\tan(\theta/2)$、$\eta=1-d/W$，与题面给出的平底公式一致。
+
+\subsection{求解与结果}
+
+取 $\theta=120^\circ$、$\alpha=1.5^\circ$、$D_0=70\text{ m}$，对表 1 所列位置代入式 \eqref{eq:q1_depth}--\eqref{eq:q1_overlap}，结果如表 2 所示，趋势如图 2 所示。
+
+\begin{table}[H]
+  \centering
+  \caption{问题一计算结果}
+  \label{tab:q1}
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lrrrrrrrrr}
+      \toprule
+      测线距中心点距离 / m & $-800$ & $-600$ & $-400$ & $-200$ & $0$ & $200$ & $400$ & $600$ & $800$ \\
+      \midrule
+      海水深度 / m & 90.95 & 85.71 & 80.47 & 75.24 & 70.00 & 64.76 & 59.53 & 54.29 & 49.05 \\
+      覆盖宽度 / m & 315.71 & 297.53 & 279.35 & 261.17 & 242.99 & 224.81 & 206.63 & 188.45 & 170.27 \\
+      重叠率 / \% & -- & 35.70 & 31.51 & 26.74 & 21.26 & 14.89 & 7.41 & $-1.53$ & $-12.36$ \\
+      \bottomrule
+    \end{tabular}%
+  }
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]{../figures/q1/fig_q1_result.pdf}
+  \caption{海水深度、覆盖宽度与重叠率随测线位置的变化}
+  \label{fig:q1_result}
+\end{figure}
+
+由图 2 可知，随 $x$ 由 $-800\text{ m}$ 增至 $800\text{ m}$，水深和覆盖宽度单调减小，符合浅水处覆盖宽度较小的物理直觉；相邻重叠率也从 $35.70\%$ 持续下降至 $-12.36\%$，在右侧浅水区出现漏测。
+
+\subsection{模型验证与本问结论}
+
+模型在 $\alpha=0$ 时精确退化为平底公式，说明式 \eqref{eq:q1_half} 的几何口径正确。综合表 2，问题一的覆盖宽度与重叠率模型已建立；给定参数下，覆盖宽度范围为 $170.27\sim315.71\text{ m}$，且右侧浅水区会由重叠逐步转为漏测。

@@ -1,0 +1,19 @@
+figure.dpi: 120
+savefig.dpi: 300
+savefig.bbox: tight
+font.family: sans-serif
+font.sans-serif: SimHei, Microsoft YaHei, Arial
+axes.unicode_minus: False
+axes.linewidth: 1.0
+axes.grid: True
+grid.alpha: 0.25
+grid.linewidth: 0.6
+axes.spines.top: False
+axes.spines.right: False
+xtick.labelsize: 10
+ytick.labelsize: 10
+axes.labelsize: 11
+axes.titlesize: 12
+legend.fontsize: 9
+lines.linewidth: 1.8
+lines.markersize: 6

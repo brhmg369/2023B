@@ -5,3 +5,13 @@ tmp/
 B题.pdf
 附件.xlsx
 format2023.doc
+
+# LaTeX build artifacts
+paper/*.aux
+paper/*.log
+paper/*.toc
+paper/*.out
+paper/*.xdv
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.synctex.gz
