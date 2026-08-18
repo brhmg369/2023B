@@ -50,3 +50,19 @@ python code/q3_survey_line_design.py
 ```
 
 程序参数来自题面：矩形海域南北长 `2 NM`、东西宽 `4 NM`，中心水深 `110 m`，西深东浅，坡度 `1.5 deg`，换能器开角 `120 deg`。推荐方案为沿等深线南北向布设 `34` 条测线，总长度 `125936 m`。
+
+## 问题四
+
+已完成内容：
+
+- `code/q4_real_bathymetry_design.py`：基于附件真实水深网格的分带测线布设程序；
+- `result4.xlsx`：问题四候选方案、推荐测线坐标、覆盖与重叠校验；
+- `docs/q4_paper_writer_handoff.md`：写给论文手的问题四建模交接。
+
+运行方式：
+
+```powershell
+python code/q4_real_bathymetry_design.py
+```
+
+程序读取 `附件.xlsx`，主推荐 `0.5 NM` 分带布线方案：测线线段数 `461`，总长度 `426886 m`，漏测率 `0.0000%`，重叠率超过 `20%` 部分总长度 `5481.92 m`。
