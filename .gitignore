@@ -1,7 +1,7 @@
 __pycache__/
 *.pyc
 .pytest_cache/
+tmp/
 B题.pdf
 附件.xlsx
 format2023.doc
-result2.xlsx
