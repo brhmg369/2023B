@@ -1,8 +1,8 @@
-\section{问题二的模型建立与求解}
+\section{问题二：任意航向下的空间覆盖模型}
 
-\subsection{三维坡面到二维剖面的转化}
+\subsection{坡度的空间投影与等效剖面}
 
-问题二把问题一的二维剖面推广到三维矩形海域。设测线方向与海底坡面法向在水平面上的投影夹角为 $\beta$，将坡面法向水平投影的正方向取为深水方向。多波束扫描平面垂直于测线方向，真正影响覆盖宽度的是坡度在该垂直剖面方向上的分量。因此定义垂直测线剖面内的等效坡度
+问题二把问题一的二维剖面推广到三维矩形海域。设测线方向与海底坡面法向在水平面上的投影夹角为 $\beta$，将坡面法向水平投影的正方向取为深水方向。多波束扫描平面垂直于测线方向，真正影响覆盖宽度的是坡度在该垂直剖面方向上的分量，因此定义垂直测线剖面内的等效坡度
 
 \begin{equation}
   \alpha_{\mathrm{eff}}=\arctan\left(\tan\alpha\sin\beta\right).
@@ -16,6 +16,8 @@
   \label{eq:q2_depth}
 \end{equation}
 
+\subsection{覆盖宽度模型及计算结果}
+
 将问题一公式中的坡度替换为 $\alpha_{\mathrm{eff}}$、水深替换为 $D(r,\beta)$，得到覆盖宽度
 
 \begin{equation}
@@ -24,9 +26,7 @@
   \label{eq:q2_width}
 \end{equation}
 
-\subsection{求解与结果}
-
-取 $\theta=120^\circ$、$\alpha=1.5^\circ$、$D_0=120\text{ m}$，对 $\beta=0^\circ,45^\circ,\dots,315^\circ$ 与 $r=0,0.3,\dots,2.1$ 海里代入式 \eqref{eq:q2_depth}--\eqref{eq:q2_width}，结果如表 3 和图 3 所示。
+取 $\theta=120^\circ$、$\alpha=1.5^\circ$、$D_0=120\text{ m}$，对 $\beta=0^\circ,45^\circ,\dots,315^\circ$ 与 $r=0,0.3,\dots,2.1$ 海里代入式 \eqref{eq:q2_depth}--\eqref{eq:q2_width}，结果如表 4 所示。
 
 \begin{table}[H]
   \centering
@@ -34,7 +34,9 @@
   \label{tab:q2}
   \begin{tabular}{lrrrrrrrr}
     \toprule
-    $\beta$ / $^\circ$ & 0 & 0.3 & 0.6 & 0.9 & 1.2 & 1.5 & 1.8 & 2.1 \\
+    $\beta$ / $^\circ$ & \multicolumn{8}{c}{$r$ / 海里} \\
+    \cmidrule(lr){2-9}
+     & 0 & 0.3 & 0.6 & 0.9 & 1.2 & 1.5 & 1.8 & 2.1 \\
     \midrule
     0   & 415.69 & 466.09 & 516.49 & 566.89 & 617.29 & 667.69 & 718.09 & 768.48 \\
     45  & 416.12 & 451.79 & 487.47 & 523.14 & 558.82 & 594.49 & 630.16 & 665.84 \\
@@ -48,6 +50,8 @@
   \end{tabular}
 \end{table}
 
+在 $\beta=0^\circ$ 方向，覆盖宽度随船位距离由 $415.69\text{ m}$ 增至 $768.48\text{ m}$；在 $\beta=180^\circ$ 方向则随距离由 $415.69\text{ m}$ 降至 $62.90\text{ m}$；$\beta=90^\circ$ 与 $270^\circ$ 方向覆盖宽度不随距离变化，恒为 $416.55\text{ m}$。$45^\circ$、$135^\circ$、$225^\circ$、$315^\circ$ 方向介于上述情形之间，且关于 $\beta=90^\circ$ 与 $270^\circ$ 对称。空间分布见图 3。
+
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.78\textwidth]{../figures/q2/fig_q2_heatmap.pdf}
@@ -55,6 +59,6 @@
   \label{fig:q2_heatmap}
 \end{figure}
 
-\subsection{模型验证与本问结论}
+\subsection{特殊航向检验}
 
-当 $\beta=0^\circ$ 或 $180^\circ$ 时，测线方向沿坡面法向水平投影，垂直测线剖面沿等深线方向，$\alpha_{\mathrm{eff}}=0$，公式退化为平底公式 $W=2D\tan(\theta/2)$；当 $\beta=90^\circ$ 或 $270^\circ$ 时，船沿等深线运动，$D(r,\beta)=D_0$，覆盖宽度不随距离变化，与表 3 中该两行恒为 $416.55\text{ m}$ 一致。整体上覆盖宽度随水深增大而增大，$\beta=0^\circ$ 行随距离显著增大、$\beta=180^\circ$ 行随距离显著减小，符合物理直觉。
+当 $\beta=0^\circ$ 或 $180^\circ$ 时，测线方向沿坡面法向的水平投影，垂直测线剖面沿等深线方向，$\alpha_{\mathrm{eff}}=0$，公式退化为平底形式 $W=2D\tan(\theta/2)$，覆盖宽度仅随船位水深变化；当 $\beta=90^\circ$ 或 $270^\circ$ 时，船沿等深线运动，$D(r,\beta)=D_0$，覆盖宽度不随距离变化，与表 4 中这两行恒为 $416.55\text{ m}$ 一致。整体上覆盖宽度随船位水深增大而增大，$\beta=0^\circ$ 行随距离递增、$\beta=180^\circ$ 行随距离递减，与式 \eqref{eq:q2_depth} 中水深项的符号一致。

@@ -1,6 +1,32 @@
 \vspace{1.1em}
 
-以下给出问题一与问题三的核心程序。完整程序、运行说明与结果文件见项目仓库 \texttt{code/} 与 \texttt{result1-4.xlsx}。
+本附录列出支撑材料文件清单、程序入口与核心代码。四问完整可运行源程序见支撑材料 \texttt{code/} 目录，结果文件见 \texttt{result1-4.xlsx}。
+
+\subsection*{支撑材料文件清单}
+
+\begin{enumerate}
+  \item \texttt{code/q1\_multibeam\_model.py}：问题一覆盖宽度与重叠率计算；
+  \item \texttt{code/q2\_multibeam\_model.py}：问题二任意航向覆盖宽度计算；
+  \item \texttt{code/q3\_survey\_line\_design.py}：问题三贪心递推测线设计；
+  \item \texttt{code/q4\_real\_bathymetry\_design.py}：问题四分带测线设计与覆盖评价；
+  \item \texttt{code/make\_figures.py}：正文图 1 至图 7 的绘图脚本；
+  \item \texttt{附件.xlsx}：问题四原始水深数据；
+  \item \texttt{result1.xlsx}--\texttt{result4.xlsx}：四问数值结果。
+\end{enumerate}
+
+\subsection*{程序入口与执行顺序}
+
+依次运行四个程序生成对应结果文件，再运行绘图脚本生成正文图表：
+
+\begin{enumerate}
+  \item \texttt{q1\_multibeam\_model.py} $\rightarrow$ \texttt{result1.xlsx}；
+  \item \texttt{q2\_multibeam\_model.py} $\rightarrow$ \texttt{result2.xlsx}；
+  \item \texttt{q3\_survey\_line\_design.py} $\rightarrow$ \texttt{result3.xlsx}；
+  \item \texttt{q4\_real\_bathymetry\_design.py} $\rightarrow$ \texttt{result4.xlsx}；
+  \item \texttt{make\_figures.py} $\rightarrow$ 正文图 1 至图 7。
+\end{enumerate}
+
+以下展示问题一与问题三的核心程序。
 
 \lstinputlisting[language=Python]{../code/q1_multibeam_model.py}
 

@@ -1,17 +1,8 @@
-\section{问题一的模型建立与求解}
+\section{问题一：斜坡海底的多波束覆盖模型}
 
-\subsection{建模思路}
+\subsection{二维测深剖面与水深关系}
 
-以海域中心点为原点，在与测线方向垂直的二维剖面内建立水平坐标 $x$，取 $x>0$ 为浅水上坡方向、$x<0$ 为深水下坡方向，垂直向下为水深正方向。设换能器位于测线位置 $x$ 处，半开角为 $\phi=\theta/2$。声束左右边界与斜坡海底相交，形成左右两个半覆盖宽度，其水平投影之和即为条带覆盖宽度 $W(x)$，如图 1 所示。
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.82\textwidth]{../figures/q1/fig_q1_geometry.pdf}
-  \caption{二维斜坡剖面的覆盖宽度几何示意}
-  \label{fig:q1_geometry}
-\end{figure}
-
-\subsection{水深模型}
+以海域中心点为原点，在与测线方向垂直的二维剖面内建立水平坐标 $x$，取 $x>0$ 为浅水上坡方向、$x<0$ 为深水下坡方向，垂直向下为水深正方向。设换能器位于测线位置 $x$ 处，半开角为 $\phi=\theta/2$；声束左右边界与斜坡海底相交，形成左右两个半覆盖宽度，其水平投影之和即为条带覆盖宽度 $W(x)$。本文所称覆盖宽度均指条带在水平面上的投影宽度，与测线水平间距保持同一量纲。
 
 由坡度定义，位置 $x$ 处的海水深度沿水平方向线性变化：
 
@@ -20,7 +11,16 @@
   \label{eq:q1_depth}
 \end{equation}
 
-\subsection{覆盖宽度模型}
+覆盖宽度的几何关系如图 1 所示。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\textwidth]{../figures/q1/fig_q1_geometry.pdf}
+  \caption{二维斜坡剖面的覆盖宽度几何示意}
+  \label{fig:q1_geometry}
+\end{figure}
+
+\subsection{覆盖边界与重叠率模型}
 
 设声束边界与坡面的交点分别位于测线左右两侧。由正弦定理或射线与直线交点几何关系，可得左右半覆盖宽度的水平投影为
 
@@ -39,8 +39,6 @@
   \label{eq:q1_width}
 \end{equation}
 
-\subsection{相邻条带重叠率模型}
-
 设第 $i-1$ 条测线与第 $i$ 条测线的水平间距为 $d_i=x_i-x_{i-1}$。相邻条带的重叠宽度取两条带相交的水平宽度
 
 \begin{equation}
@@ -55,11 +53,9 @@
   \label{eq:q1_overlap}
 \end{equation}
 
-当 $\alpha=0$ 时，式 \eqref{eq:q1_half} 退化为 $B_L=B_R=D\tan\phi$，进而 $W=2D\tan(\theta/2)$、$\eta=1-d/W$，与题面给出的平底公式一致。
+\subsection{数值结果与平底极限检验}
 
-\subsection{求解与结果}
-
-取 $\theta=120^\circ$、$\alpha=1.5^\circ$、$D_0=70\text{ m}$，对表 1 所列位置代入式 \eqref{eq:q1_depth}--\eqref{eq:q1_overlap}，结果如表 2 所示，趋势如图 2 所示。
+取 $\theta=120^\circ$、$\alpha=1.5^\circ$、$D_0=70\text{ m}$，对题面表 1 所列 9 个位置代入式 \eqref{eq:q1_depth}--\eqref{eq:q1_overlap}，结果如表 2 所示。
 
 \begin{table}[H]
   \centering
@@ -78,6 +74,8 @@
   }
 \end{table}
 
+随 $x$ 由 $-800\text{ m}$ 增至 $800\text{ m}$，水深由 $90.95\text{ m}$ 降至 $49.05\text{ m}$，覆盖宽度由 $315.71\text{ m}$ 单调降至 $170.27\text{ m}$；相邻重叠率由 $35.70\%$ 降至 $-12.36\%$，在 $x=600\text{ m}$ 处已转为负值，表明浅水侧按固定间距布线会出现漏测。变化趋势见图 2。
+
 \begin{figure}[H]
   \centering
   \includegraphics[width=1.0\textwidth]{../figures/q1/fig_q1_result.pdf}
@@ -85,8 +83,23 @@
   \label{fig:q1_result}
 \end{figure}
 
-由图 2 可知，随 $x$ 由 $-800\text{ m}$ 增至 $800\text{ m}$，水深和覆盖宽度单调减小，符合浅水处覆盖宽度较小的物理直觉；相邻重叠率也从 $35.70\%$ 持续下降至 $-12.36\%$，在右侧浅水区出现漏测。
+当 $\alpha=0$ 时，式 \eqref{eq:q1_half} 退化为 $B_L=B_R=D\tan\phi$，进而 $W=2D\tan(\theta/2)$、$\eta=1-d/W$，与题面给出的平底公式一致。在给定参数下，覆盖宽度范围为 $170.27\sim315.71\text{ m}$；浅水侧由重叠逐步转为漏测，说明等间距布线的重叠率随水深减小而下降。
 
-\subsection{模型验证与本问结论}
+\subsection{参数敏感性分析}
 
-模型在 $\alpha=0$ 时精确退化为平底公式，说明式 \eqref{eq:q1_half} 的几何口径正确。综合表 2，问题一的覆盖宽度与重叠率模型已建立；给定参数下，覆盖宽度范围为 $170.27\sim315.71\text{ m}$，且右侧浅水区会由重叠逐步转为漏测。
+在 $x=0$、$D_0=70\text{ m}$ 处分别单独扰动坡度 $\alpha$ 与换能器开角 $\theta$，覆盖宽度变化如表 3 所示。坡度由 $0.0^\circ$ 增至 $3.0^\circ$ 时，$W$ 仅由 $242.49\text{ m}$ 增至 $244.50\text{ m}$，变化约 $2.01\text{ m}$；开角由 $100^\circ$ 增至 $140^\circ$ 时，$W$ 由 $167.01\text{ m}$ 增至 $386.65\text{ m}$。在本题给定的小坡度范围内，坡度对覆盖宽度的影响较弱，换能器开角是决定覆盖宽度的主要参数。
+
+\begin{table}[H]
+  \centering
+  \caption{问题一覆盖宽度对坡度与开角的单因素敏感性}
+  \label{tab:sens}
+  \begin{tabular}{lcccccc}
+    \toprule
+    $\alpha$ / $^\circ$（$\theta=120^\circ$） & 0.0 & 0.5 & 1.0 & 1.5 & 2.0 & 3.0 \\
+    $W$ / m & 242.49 & 242.54 & 242.71 & 242.99 & 243.38 & 244.50 \\
+    \midrule
+    $\theta$ / $^\circ$（$\alpha=1.5^\circ$） & 100 & 110 & 120 & 130 & 140 & -- \\
+    $W$ / m & 167.01 & 200.22 & 242.99 & 301.18 & 386.65 & -- \\
+    \bottomrule
+  \end{tabular}
+\end{table}
