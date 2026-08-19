@@ -10,6 +10,9 @@ from __future__ import annotations
 import math
 from pathlib import Path
 
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import openpyxl
@@ -27,25 +30,25 @@ NM = 1852.0
 THETA_DEG = 120.0
 ALPHA_DEG = 1.5
 
-INK = "#263238"
-MUTED = "#66717A"
-GRID = "#D7DDE2"
-NAVY = "#243B5A"
-BLUE = "#2F6F9F"
-TEAL = "#2A9D8F"
-AMBER = "#D9A441"
-CLAY = "#9A6A4F"
-WATER = "#D9EEF7"
-SLOPE = "#E7E2D7"
-ACCENT = "#C84B31"
+INK = "#2C3237"
+MUTED = "#6F7880"
+GRID = "#D8DEE3"
+NAVY = "#2C4866"
+BLUE = "#3B7893"
+TEAL = "#5A9A8A"
+AMBER = "#B99B4C"
+CLAY = "#8B7A66"
+WATER = "#E3F1F5"
+SLOPE = "#E9E5DA"
+ACCENT = "#A84D3B"
 
 DEPTH_CMAP = LinearSegmentedColormap.from_list(
     "paper_depth",
-    ["#F4D88B", "#7CCBA2", "#2F88A6", "#263B63"],
+    ["#F1E6C8", "#C7D7C7", "#7EA9AE", "#456F87", "#2F3D55"],
 )
 WIDTH_CMAP = LinearSegmentedColormap.from_list(
     "paper_width",
-    ["#2F2E5F", "#277DA1", "#43AA8B", "#F2C14E"],
+    ["#343F61", "#4C7D9A", "#7EA99B", "#C4AE71"],
 )
 
 plt.rcParams.update(
@@ -53,6 +56,9 @@ plt.rcParams.update(
         "axes.facecolor": "white",
         "figure.facecolor": "white",
         "savefig.facecolor": "white",
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Microsoft YaHei", "Arial", "DejaVu Sans", "SimHei"],
+        "mathtext.fontset": "dejavusans",
         "axes.edgecolor": INK,
         "axes.labelcolor": INK,
         "xtick.color": INK,
@@ -62,7 +68,15 @@ plt.rcParams.update(
         "grid.alpha": 0.55,
         "grid.linewidth": 0.55,
         "legend.frameon": False,
-        "axes.titleweight": "bold",
+        "svg.fonttype": "none",
+        "pdf.fonttype": 42,
+        "font.size": 9,
+        "axes.titlesize": 10,
+        "axes.labelsize": 9,
+        "xtick.labelsize": 8,
+        "ytick.labelsize": 8,
+        "legend.fontsize": 8,
+        "axes.titleweight": "normal",
     }
 )
 
@@ -107,6 +121,7 @@ def read_result3() -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.n
         east.append(float(row[13]))
         spacing.append(float(row[14]) if row[14] is not None else np.nan)
         eta.append(float(row[16]) if row[16] is not None else np.nan)
+    wb.close()
     return np.array(x), np.array(spacing), np.array(eta), np.array(west), np.array(east)
 
 
@@ -119,7 +134,7 @@ def read_result4_comparison() -> dict[str, np.ndarray | list[str]]:
         if row[0] is None:
             continue
         rows.append(row)
-    return {
+    data = {
         "names": short_names[: len(rows)],
         "band_height": np.array([float(r[1]) for r in rows]),
         "segments": np.array([float(r[3]) for r in rows]),
@@ -128,6 +143,8 @@ def read_result4_comparison() -> dict[str, np.ndarray | list[str]]:
         "max_eta": np.array([float(r[9]) for r in rows]),
         "avg_eta": np.array([float(r[10]) for r in rows]),
     }
+    wb.close()
+    return data
 
 
 def read_result4_segments() -> np.ndarray:
@@ -138,6 +155,7 @@ def read_result4_segments() -> np.ndarray:
         if row[3] is None:
             continue
         segs.append((float(row[3]), float(row[5]), float(row[6])))
+    wb.close()
     return np.array(segs)
 
 
@@ -149,6 +167,7 @@ def read_bathymetry() -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     z = np.array(
         [[float(ws.cell(r, c).value) for c in range(3, ws.max_column + 1)] for r in range(3, ws.max_row + 1)]
     )
+    wb.close()
     return x, y, z
 
 
@@ -157,7 +176,13 @@ def save(fig, q: str, name: str) -> None:
     out.mkdir(parents=True, exist_ok=True)
     for suffix in ("pdf", "svg"):
         fig.savefig(out / f"{name}.{suffix}", bbox_inches="tight", pad_inches=0.04)
-    fig.savefig(out / f"{name}.png", dpi=300, bbox_inches="tight", pad_inches=0.04)
+    png = out / f"{name}.png"
+    try:
+        fig.savefig(png, dpi=300, bbox_inches="tight", pad_inches=0.04)
+    except OSError:
+        tmp_png = out / f"{name}.tmp.png"
+        fig.savefig(tmp_png, dpi=300, bbox_inches="tight", pad_inches=0.04)
+        tmp_png.replace(png)
     plt.close(fig)
     print(f"Wrote {out / name}.pdf / .svg / .png")
 
@@ -308,73 +333,101 @@ def fig_q2_3d_geometry() -> None:
     heading = np.array([math.cos(beta), math.sin(beta), 0.0])
     cross = np.array([-math.sin(beta), math.cos(beta), 0.0])
 
-    xx, yy = np.meshgrid(np.linspace(-1.05, 1.05, 5), np.linspace(-0.9, 0.9, 5))
-    depth = 0.42 + 0.20 * xx
-    sea = np.zeros_like(xx)
-    seabed = -depth
+    def bed_z(x_coord: float | np.ndarray) -> float | np.ndarray:
+        return -0.44 - 0.18 * x_coord
 
-    fig = plt.figure(figsize=(7.4, 5.2))
-    ax = fig.add_subplot(111, projection="3d")
-    ax.plot_surface(xx, yy, sea, color="#A9D7EB", alpha=0.32, linewidth=0, shade=False)
-    ax.plot_surface(xx, yy, seabed, color="#D9D3C7", alpha=0.88, edgecolor="#9C9385", linewidth=0.45, shade=False)
+    def project(points: np.ndarray) -> np.ndarray:
+        pts = np.asarray(points, dtype=float)
+        return np.stack((pts[..., 0] - 0.55 * pts[..., 1], 0.34 * pts[..., 1] + pts[..., 2]), axis=-1)
 
-    t = np.linspace(-0.9, 0.9, 80)
-    line = t[:, None] * heading
-    ax.plot(line[:, 0], line[:, 1], np.zeros_like(t) + 0.012, color=NAVY, lw=2.4)
-    ax.quiver(
-        -0.18 * heading[0],
-        -0.18 * heading[1],
-        0.04,
-        0.45 * heading[0],
-        0.45 * heading[1],
-        0,
-        color=NAVY,
-        lw=1.4,
-        arrow_length_ratio=0.22,
-    )
+    def poly3d(ax, points, facecolor, edgecolor, lw=0.9, alpha=1.0, zorder=1):
+        ax.add_patch(
+            Polygon(
+                project(np.array(points)),
+                closed=True,
+                facecolor=facecolor,
+                edgecolor=edgecolor,
+                lw=lw,
+                alpha=alpha,
+                joinstyle="miter",
+                zorder=zorder,
+            )
+        )
 
-    u = np.linspace(-0.72, 0.72, 2)
-    z_rect = np.linspace(-0.66, 0.035, 2)
-    uu, zzp = np.meshgrid(u, z_rect)
-    plane_x = uu * cross[0]
-    plane_y = uu * cross[1]
-    ax.plot_surface(plane_x, plane_y, zzp, color="#EAC56A", alpha=0.26, linewidth=0, shade=False)
-    ax.plot(plane_x[0], plane_y[0], zzp[0], color=AMBER, lw=1.0, alpha=0.8)
+    def line3d(ax, points, color=INK, lw=1.0, ls="-", alpha=1.0, zorder=4):
+        pts = project(np.array(points))
+        ax.plot(pts[:, 0], pts[:, 1], color=color, lw=lw, ls=ls, alpha=alpha, zorder=zorder)
 
-    ax.quiver(-0.78, -0.72, 0.08, 0.45, 0, 0, color=ACCENT, lw=1.3, arrow_length_ratio=0.22)
-    label_box = dict(facecolor="white", alpha=0.74, edgecolor="none", pad=1.5)
-    ax.text(line[-1, 0] + 0.04, line[-1, 1], 0.07, "航向", color=NAVY, fontsize=10, bbox=label_box)
-    ax.text(0.20, -0.20, -0.30, "扫描平面", color=AMBER, fontsize=9, bbox=label_box)
-    ax.text(-0.92, 0.78, 0.05, "海平面", color=BLUE, fontsize=10, bbox=label_box)
-    ax.text(0.56, 0.70, -0.56, "斜坡海底", color=CLAY, fontsize=10, bbox=label_box)
+    def arrow3d(ax, start, end, color=INK, lw=1.0, zorder=6):
+        p0, p1 = project(np.array([start, end]))
+        ax.annotate(
+            "",
+            xy=p1,
+            xytext=p0,
+            arrowprops=dict(arrowstyle="->", color=color, lw=lw, shrinkA=0, shrinkB=0),
+            zorder=zorder,
+        )
 
-    arc_theta = np.linspace(0, beta, 48)
-    radius = 0.38
-    ax.plot(radius * np.cos(arc_theta) - 0.78, radius * np.sin(arc_theta) - 0.72, np.full_like(arc_theta, 0.09), color=INK, lw=1.0)
-    ax.text(-0.61, -0.53, 0.12, r"$\beta$", fontsize=11, color=INK)
-    ax.text2D(
-        0.035,
-        0.86,
-        "红箭头：坡面法向水平投影\n深蓝线：测线航向\n金色面：垂直测线扫描平面",
-        transform=ax.transAxes,
-        color=INK,
-        fontsize=8.5,
-        bbox=dict(facecolor="white", alpha=0.88, edgecolor="#D6DCE0", pad=5),
-    )
+    def label3d(ax, point, text, color=INK, dx=0.0, dy=0.0, size=9, ha="left", va="center"):
+        p = project(np.array(point))
+        ax.text(p[0] + dx, p[1] + dy, text, color=color, fontsize=size, ha=ha, va=va, zorder=8)
 
-    ax.set_xlim(-1.1, 1.1)
-    ax.set_ylim(-0.98, 0.98)
-    ax.set_zlim(-0.75, 0.16)
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.set_zlabel("z")
-    ax.view_init(elev=24, azim=-58)
-    ax.grid(False)
+    sea = np.array([[-1.12, -0.82, 0.0], [1.12, -0.82, 0.0], [1.12, 0.82, 0.0], [-1.12, 0.82, 0.0]])
+    bed = np.array([[p[0], p[1], bed_z(p[0])] for p in sea])
+    u0, u1 = -0.58, 0.58
+    scan_top0 = u0 * cross + np.array([0, 0, 0.035])
+    scan_top1 = u1 * cross + np.array([0, 0, 0.035])
+    scan_bot1 = u1 * cross + np.array([0, 0, bed_z(u1 * cross[0])])
+    scan_bot0 = u0 * cross + np.array([0, 0, bed_z(u0 * cross[0])])
+    scan = np.vstack([scan_top0, scan_top1, scan_bot1, scan_bot0])
+
+    fig, ax = plt.subplots(figsize=(7.0, 4.8))
     ax.set_axis_off()
-    ax.xaxis.pane.set_alpha(0.0)
-    ax.yaxis.pane.set_alpha(0.0)
-    ax.zaxis.pane.set_alpha(0.0)
-    ax.set_box_aspect((1.35, 1.05, 0.58))
+    ax.set_aspect("equal")
+
+    poly3d(ax, bed, SLOPE, "#A99F91", lw=0.9, alpha=0.98, zorder=1)
+    for yy in (-0.44, 0.0, 0.44):
+        line3d(ax, [[-1.12, yy, bed_z(-1.12)], [1.12, yy, bed_z(1.12)]], "#B7AEA2", lw=0.45, alpha=0.8, zorder=2)
+    for xx in (-0.56, 0.0, 0.56):
+        line3d(ax, [[xx, -0.82, bed_z(xx)], [xx, 0.82, bed_z(xx)]], "#B7AEA2", lw=0.42, alpha=0.62, zorder=2)
+    poly3d(ax, sea, WATER, BLUE, lw=0.95, alpha=0.56, zorder=3)
+    poly3d(ax, scan, "#EFE1B7", AMBER, lw=1.0, alpha=0.66, zorder=4)
+
+    line3d(ax, [scan_top0, scan_top1], AMBER, lw=1.05, zorder=5)
+    line3d(ax, [scan_bot0, scan_bot1], AMBER, lw=1.05, zorder=5)
+    line3d(ax, [scan_top0, scan_bot0], AMBER, lw=0.72, ls="--", alpha=0.78, zorder=5)
+    line3d(ax, [scan_top1, scan_bot1], AMBER, lw=0.72, ls="--", alpha=0.78, zorder=5)
+
+    route0 = -0.74 * heading + np.array([0, 0, 0.055])
+    route1 = 0.74 * heading + np.array([0, 0, 0.055])
+    line3d(ax, [route0, route1], NAVY, lw=1.7, zorder=6)
+    arrow3d(ax, -0.18 * heading + np.array([0, 0, 0.065]), 0.42 * heading + np.array([0, 0, 0.065]), NAVY, lw=1.1)
+
+    origin = np.array([-0.78, -0.56, 0.075])
+    arrow3d(ax, origin, origin + np.array([0.46, 0.0, 0.0]), ACCENT, lw=1.15)
+    arrow3d(ax, origin, origin + 0.56 * heading, NAVY, lw=1.15)
+    arc_t = np.linspace(0, beta, 64)
+    arc = origin + np.column_stack([0.24 * np.cos(arc_t), 0.24 * np.sin(arc_t), np.zeros_like(arc_t)])
+    line3d(ax, arc, INK, lw=0.9, zorder=7)
+
+    beam_l = scan_bot0
+    beam_r = scan_bot1
+    sonar = np.array([0.0, 0.0, 0.06])
+    line3d(ax, [sonar, beam_l], ACCENT, lw=0.92, alpha=0.82, zorder=6)
+    line3d(ax, [sonar, beam_r], ACCENT, lw=0.92, alpha=0.82, zorder=6)
+    line3d(ax, [sonar, np.array([0.0, 0.0, bed_z(0.0)])], MUTED, lw=0.82, ls="--", alpha=0.9, zorder=6)
+
+    label3d(ax, [-1.02, 0.78, 0.0], "海平面", BLUE, dx=-0.04, dy=0.03, size=9)
+    label3d(ax, [0.66, 0.74, bed_z(0.66)], "斜坡海底", CLAY, dx=0.02, dy=-0.04, size=9)
+    label3d(ax, route1, "航向", NAVY, dx=0.02, dy=0.04, size=9)
+    label3d(ax, scan_bot1, "扫描平面", AMBER, dx=0.03, dy=-0.01, size=9)
+    label3d(ax, origin + np.array([0.25, 0.02, 0.0]), r"$\beta$", INK, dx=0.0, dy=0.0, size=10)
+    label3d(ax, origin + np.array([0.46, 0.0, 0.0]), "坡面法向水平投影", ACCENT, dx=0.03, dy=-0.01, size=8)
+
+    all_pts = np.vstack([sea, bed, scan, route0, route1, origin, origin + np.array([0.46, 0, 0]), origin + 0.56 * heading])
+    p = project(all_pts)
+    ax.set_xlim(p[:, 0].min() - 0.22, p[:, 0].max() + 0.24)
+    ax.set_ylim(p[:, 1].min() - 0.16, p[:, 1].max() + 0.18)
     save(fig, "q2", "fig_q2_3d_geometry")
 
 
@@ -391,9 +444,10 @@ def fig_q2_heatmap() -> None:
     ax.clabel(cs, fmt="%d", fontsize=7, colors="white")
     cb = fig.colorbar(im, ax=ax, shrink=0.93, pad=0.015)
     cb.set_label("覆盖宽度 W / m")
+    cb.set_ticks(np.arange(100, 701, 100))
     ax.set_xlabel("测量船距中心点距离 r / 海里")
-    ax.set_ylabel("测线方向夹角 beta / deg")
-    ax.set_title("覆盖宽度的方向-距离二维投影")
+    ax.set_ylabel(r"测线方向夹角 $\beta$ / deg")
+    ax.set_title(r"$W(r,\beta)$ 的二维等值投影")
     for beta in (0, 90, 180, 270):
         ax.axhline(beta, color="white", lw=0.75, alpha=0.55)
     clean_axis(ax, grid=False)
@@ -408,14 +462,15 @@ def fig_q2_width_surface() -> None:
 
     fig = plt.figure(figsize=(7.6, 5.35))
     ax = fig.add_subplot(111, projection="3d")
-    surf = ax.plot_surface(r_grid, beta_grid, width, cmap=WIDTH_CMAP, linewidth=0, antialiased=True, alpha=0.96)
-    ax.contour(r_grid, beta_grid, width, zdir="z", offset=40, levels=10, cmap=WIDTH_CMAP, linewidths=0.75, alpha=0.75)
-    fig.colorbar(surf, ax=ax, shrink=0.62, pad=0.08, label="覆盖宽度 W / m")
+    surf = ax.plot_surface(r_grid, beta_grid, width, cmap=WIDTH_CMAP, linewidth=0, antialiased=True, alpha=0.94)
+    ax.contour(r_grid, beta_grid, width, zdir="z", offset=40, levels=10, cmap=WIDTH_CMAP, linewidths=0.66, alpha=0.72)
+    cb = fig.colorbar(surf, ax=ax, shrink=0.62, pad=0.08, label="覆盖宽度 W / m")
+    cb.set_ticks(np.arange(100, 701, 100))
     ax.set_xlabel("r / 海里")
-    ax.set_ylabel("beta / deg")
+    ax.set_ylabel(r"$\beta$ / deg")
     ax.set_zlabel("W / m")
     ax.set_zlim(40, 790)
-    ax.set_title("W(r, beta) 覆盖宽度三维曲面")
+    ax.set_title(r"$W(r,\beta)$ 覆盖宽度曲面")
     ax.view_init(elev=28, azim=-132)
     ax.set_box_aspect((1.25, 1.25, 0.72))
     ax.xaxis.pane.set_alpha(0.0)
@@ -449,12 +504,13 @@ def fig_q3_layout() -> None:
     arrow2d(ax, (x_min + 700, y_max + 130), (x_max - 700, y_max + 130), color=CLAY, text="由深到浅", text_offset=(-80, 26))
     ax.text(x_min + 120, y_max + 65, "西侧深水", color=CLAY, fontsize=10)
     ax.text(x_max - 860, y_max + 65, "东侧浅水", color=CLAY, fontsize=10)
-    ax.text(x_min + 160, y_min - 320, "半透明条带表示水平覆盖范围，深色实线表示测线位置", color=MUTED, fontsize=9)
+    ax.text(x[3] + 36, y_max - 300, "测线", color=NAVY, fontsize=8)
+    ax.text(west[5] - 145, y_min + 260, "覆盖边界", color="#71959A", fontsize=8)
     ax.set_xlim(x_min - 320, x_max + 320)
-    ax.set_ylim(y_min - 390, y_max + 300)
+    ax.set_ylim(y_min - 260, y_max + 300)
     ax.set_xlabel("东西向坐标 x / m")
     ax.set_ylabel("南北向坐标 y / m")
-    ax.set_title("规则坡面海域 34 条南北向测线及覆盖条带")
+    ax.set_title("规则坡面测线布设与覆盖条带")
     clean_axis(ax, grid=False)
     save(fig, "q3", "fig_q3_layout")
 
@@ -504,10 +560,11 @@ def fig_q4_depth() -> None:
     ax.add_patch(Rectangle((x[0], y[0]), x[-1] - x[0], y[-1] - y[0], fill=False, edgecolor=INK, lw=1.05, zorder=5))
     cb = fig.colorbar(im, ax=ax, pad=0.016, shrink=0.94)
     cb.set_label("海水深度 / m")
+    cb.set_ticks(np.arange(20, 201, 40))
     ax.set_xlabel("横向坐标 x / 海里")
     ax.set_ylabel("纵向坐标 y / 海里")
-    ax.set_title("真实水深等深线与推荐测线叠加")
-    ax.text(0.12, 4.76, "白色细线：0.50 NM 分带测线", color="white", fontsize=9, weight="bold")
+    ax.set_title("真实水深与推荐测线叠加")
+    ax.text(0.02, 0.98, "0.50 NM 分带测线", transform=ax.transAxes, color="white", fontsize=8, weight="bold", va="top")
     clean_axis(ax, grid=False)
     save(fig, "q4", "fig_q4_depth")
 
@@ -528,8 +585,8 @@ def fig_q4_contour_route_overlay() -> None:
     ax.set_xlabel("横向坐标 x / 海里")
     ax.set_ylabel("纵向坐标 y / 海里")
     ax.set_title("等深线、分带边界与测线方案")
-    ax.text(2.98, 4.74, "蓝线：测线", color=BLUE, fontsize=9)
-    ax.text(2.98, 4.50, "红线：分带边界", color=ACCENT, fontsize=9)
+    ax.text(0.83, 0.97, "测线", transform=ax.transAxes, color=BLUE, fontsize=8, ha="left", va="top")
+    ax.text(0.83, 0.92, "分带边界", transform=ax.transAxes, color=ACCENT, fontsize=8, ha="left", va="top")
     clean_axis(ax, grid=False)
     save(fig, "q4", "fig_q4_contour_route_overlay")
 
@@ -551,7 +608,8 @@ def fig_q4_bathymetry_surface() -> None:
     ax.contour(x_grid, y_grid, seabed, zdir="z", offset=-210, levels=12, cmap=DEPTH_CMAP, linewidths=0.78)
     mappable = ScalarMappable(norm=norm, cmap=DEPTH_CMAP)
     mappable.set_array(zs)
-    fig.colorbar(mappable, ax=ax, shrink=0.62, pad=0.08, label="海水深度 / m")
+    cb = fig.colorbar(mappable, ax=ax, shrink=0.62, pad=0.08, label="海水深度 / m")
+    cb.set_ticks(np.arange(40, 201, 40))
     ax.set_xlabel("x / 海里")
     ax.set_ylabel("y / 海里")
     ax.set_zlabel("海底高程 -D / m")
