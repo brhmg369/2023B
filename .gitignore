@@ -5,6 +5,8 @@ tmp/
 B题.pdf
 附件.xlsx
 format2023.doc
+backups/
+output/
 
 # LaTeX build artifacts
 paper/*.aux

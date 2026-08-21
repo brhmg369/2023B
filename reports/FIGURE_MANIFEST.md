@@ -20,5 +20,6 @@
 
 - 各图均生成 PDF（论文引用）、SVG（矢量源）与 PNG（QA 预览）。
 - 绘图脚本统一为 `code/make_figures.py`，源数据来自 `result1-4.xlsx`、`附件.xlsx` 或正文公式。
-- 正文图 1~图 11 均已嵌入 `paper/`，图号由 LaTeX 自动编号（2026-08-18 论文手整合）。
+- 2026-08-21 行文与结构深改后，正文选用 8 张图，图号由 LaTeX 自动编号为图 1~图 8。
+- `fig_q2_width_surface`、`fig_q4_depth` 与 `fig_q4_comparison` 的数据和源文件仍保持 `ready`，但因与已保留图表信息重复，转为备用图，不再进入正文。
 - 当前版本已按 `nature-figure` 的出版图原则再次收敛：统一低饱和海图色系，SVG 保留可编辑文字，PDF 使用 TrueType 字体；Q2 几何图改为轴测线稿，减少透明 3D 渲染带来的塑料感。

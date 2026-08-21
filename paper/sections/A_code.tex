@@ -1,33 +1,40 @@
-\vspace{1.1em}
+\vspace{0.8em}
 
-本附录列出支撑材料文件清单、程序入口与核心代码。四问完整可运行源程序见支撑材料 \texttt{code/} 目录，结果文件见 \texttt{result1-4.xlsx}。
+完整可运行程序、原始数据和结果工作簿随论文作为支撑材料提交。本附录仅保留文件对应关系、核心计算流程与复现顺序，避免重复打印正文已经解释的公式和大段源代码。
 
-\subsection*{支撑材料文件清单}
+\subsection*{A.1 支撑材料对应关系}
+
+\begin{table}[H]
+  \centering
+  \caption{四问程序、输入与输出文件}
+  \small
+  \begin{tabular}{p{0.34\textwidth}p{0.24\textwidth}p{0.30\textwidth}}
+    \toprule
+    \textbf{程序} & \textbf{主要输入} & \textbf{主要输出} \\
+    \midrule
+    \texttt{q1\_multibeam\_model.py} & 题面几何参数 & \texttt{result1.xlsx}：水深、覆盖宽度与重叠率 \\
+    \texttt{q2\_multibeam\_model.py} & 航向、距离与坡度 & \texttt{result2.xlsx}：任意航向覆盖宽度 \\
+    \shortstack[l]{\texttt{q3\_survey\_line\_}\\\texttt{design.py}} & 规则海域及重叠约束 & \texttt{result3.xlsx}：测线坐标与约束复核 \\
+    \shortstack[l]{\texttt{q4\_real\_bathymetry\_}\\\texttt{design.py}} & \texttt{附件.xlsx} 水深网格 & \texttt{result4.xlsx}：候选方案、推荐坐标与覆盖评价 \\
+    \texttt{make\_figures.py} & 四份结果工作簿 & 11 张候选图，其中正文采用 9 张 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection*{A.2 四问核心计算流程}
 
 \begin{enumerate}
-  \item \texttt{code/q1\_multibeam\_model.py}：问题一覆盖宽度与重叠率计算；
-  \item \texttt{code/q2\_multibeam\_model.py}：问题二任意航向覆盖宽度计算；
-  \item \texttt{code/q3\_survey\_line\_design.py}：问题三贪心递推测线设计；
-  \item \texttt{code/q4\_real\_bathymetry\_design.py}：问题四分带测线设计与覆盖评价；
-  \item \texttt{code/make\_figures.py}：正文图 1 至图 11 的绘图脚本；
-  \item \texttt{附件.xlsx}：问题四原始水深数据；
-  \item \texttt{result1.xlsx}--\texttt{result4.xlsx}：四问数值结果。
+  \item \textbf{问题一：二维覆盖计算。}读取开角、坡度、中心水深和测线位置；按式~\eqref{eq:q1_depth}计算船位水深，按式~\eqref{eq:q1_half}计算左右水平半覆盖宽度，再由式~\eqref{eq:q1_overlap_width}和式~\eqref{eq:q1_overlap}逐对计算重叠率。程序同时执行平底极限检查并写出表格结果。
+
+  \item \textbf{问题二：任意航向推广。}遍历题面给定的航向角与距中心距离；先计算船位水深和扫描剖面的等效坡度，再调用问题一的覆盖关系得到水平覆盖宽度。输出前检查特殊航向退化关系和方向对称性。
+
+  \item \textbf{问题三：规则海域递推。}使首条南北向测线的西覆盖边界与海域西界相接；其后以 $10\%$ 目标重叠率为条件，通过二分法求下一条测线的最大可行横坐标，直至末条覆盖东界。最后检查首末边界、全部相邻重叠率以及减少一条测线后的东侧缺口。
+
+  \item \textbf{问题四：真实地形分带。}读取并审计 $201\times251$ 水深网格，计算东西向局部梯度；对每个候选带高独立执行边界贴合与无漏测递推，再把全部线段回代原网格，统计总长度、漏测率、超 $20\%$ 重叠长度、最大重叠率和线段数，形成候选方案比较表。
 \end{enumerate}
 
-\subsection*{程序入口与执行顺序}
+\subsection*{A.3 复现顺序与结果追踪}
 
-依次运行四个程序生成对应结果文件，再运行绘图脚本生成正文图表：
+依次运行问题一至问题四程序，分别生成对应的四份结果工作簿。随后运行绘图程序生成候选图。论文表~\ref{tab:q1}、表~\ref{tab:q2}、问题三方案指标和表~\ref{tab:q4}分别对应上述四份工作簿。全部程序以米为内部长度单位，读取附件中的海里坐标后统一按 $1$ 海里 $=1852$ 米换算。
 
-\begin{enumerate}
-  \item \texttt{q1\_multibeam\_model.py} $\rightarrow$ \texttt{result1.xlsx}；
-  \item \texttt{q2\_multibeam\_model.py} $\rightarrow$ \texttt{result2.xlsx}；
-  \item \texttt{q3\_survey\_line\_design.py} $\rightarrow$ \texttt{result3.xlsx}；
-  \item \texttt{q4\_real\_bathymetry\_design.py} $\rightarrow$ \texttt{result4.xlsx}；
-  \item \texttt{make\_figures.py} $\rightarrow$ 正文图 1 至图 11。
-\end{enumerate}
-
-以下展示问题一与问题三的核心程序。
-
-\lstinputlisting[language=Python]{../code/q1_multibeam_model.py}
-
-\lstinputlisting[language=Python]{../code/q3_survey_line_design.py}
+为便于独立核验，四份工作簿同时保留方案摘要、逐线或逐段坐标以及约束检查结果；正文只呈现回答题目所必需的汇总值，完整数值明细均可由支撑材料追溯。

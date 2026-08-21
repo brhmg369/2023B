@@ -1,33 +1,41 @@
-\section{问题二：任意航向下的空间覆盖模型}
+\section{问题二：任意航向下的覆盖模型}
 
-\subsection{坡度的空间投影与等效剖面}
+\subsection{从二维剖面到航向坐标系}
 
-问题二把问题一的二维剖面推广到三维矩形海域。设测线方向与海底坡面法向在水平面上的投影夹角为 $\beta$，将坡面法向水平投影的正方向取为深水方向。多波束扫描平面垂直于测线方向，真正影响覆盖宽度的是坡度在该垂直剖面方向上的分量，因此定义垂直测线剖面内的等效坡度
+问题一默认测深剖面与坡向关系固定，尚不能回答测量船改变航向后覆盖宽度如何变化。三维坡面本身无需重新建立声束模型；关键在于区分坡度沿航向的分量和沿扫描剖面的分量：前者改变船位水深，后者改变左右声束同海底的交点。
+
+设测线方向与坡面法向在水平面上的投影夹角为 $\beta$，并取该法向投影的正方向为深水方向。多波束扫描平面垂直于测线，因此坡度在扫描剖面中的有效分量可写为
 
 \begin{equation}
   \alpha_{\mathrm{eff}}=\arctan\left(\tan\alpha\sin\beta\right).
   \label{eq:q2_alpha_eff}
 \end{equation}
 
-坡面、航向与扫描平面的空间关系如图~\ref{fig:q2_3d_geometry} 的轴测图所示：红色箭头为坡面法向在水平面的投影，深蓝线为测线航向，金色面为与测线方向垂直的多波束扫描平面，两者夹角即 $\beta$；扫描平面与斜坡的交线坡度就是 $\alpha_{\mathrm{eff}}$。
+$\alpha_{\mathrm{eff}}$ 是问题一公式真正需要的横向坡度；当测线沿坡向航行时扫描剖面近似水平，当测线沿等深线航行时扫描剖面承受完整坡度。图~\ref{fig:q2_3d_geometry} 标明航向、坡面法向水平投影与扫描平面的空间关系。
+
+沿航向的坡度分量决定船位水深，垂直航向的分量位于扫描剖面内，决定左右覆盖边界的不对称程度。两者分别进入水深公式和覆盖公式，避免重复计入坡度影响。
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.82\textwidth]{../figures/q2/fig_q2_3d_geometry.pdf}
-  \caption{任意航向下海平面、坡面与扫描平面的轴测几何关系}
+  \caption{航向角 $\beta$ 将原坡度分解为沿测线的水深变化和垂直测线的等效坡度}
   \label{fig:q2_3d_geometry}
 \end{figure}
 
-船位处水深由测线方向上的坡面高程变化确定。设测量船距海域中心点的距离为 $r$（海里），换算为 $s=1852r$ 米后，
+另一方面，沿测线方向的坡度分量决定船位水深。设测量船距海域中心的距离为 $r$ 海里，换算为 $s=1852r$ 米，则
 
 \begin{equation}
   D(r,\beta)=D_0+s\tan\alpha\cos\beta.
   \label{eq:q2_depth}
 \end{equation}
 
-\subsection{覆盖宽度模型及计算结果}
+式~\eqref{eq:q2_depth} 中 $\cos\beta$ 的符号区分船向深水侧或浅水侧航行：前者使水深随距离增加，后者使水深减小。
 
-将问题一公式中的坡度替换为 $\alpha_{\mathrm{eff}}$、水深替换为 $D(r,\beta)$，得到覆盖宽度
+因此，航向变化产生两条相互独立的作用路径：$\cos\beta$ 控制沿程水深增减，$\sin\beta$ 控制扫描剖面中的坡度大小。相反航向具有相反的水深变化，关于坡面法向对称的航向则具有相同的横向坡度绝对值。
+
+\subsection{任意航向覆盖模型}
+
+问题一已经给出水深与横向坡度共同决定水平覆盖宽度的关系。由于三维推广只改变这两个输入，将 $D(x)$ 换为 $D(r,\beta)$、将 $\alpha$ 换为 $\alpha_{\mathrm{eff}}$，得到
 
 \begin{equation}
   W(r,\beta)=D(r,\beta)\sin\phi\cos\alpha_{\mathrm{eff}}
@@ -35,11 +43,19 @@
   \label{eq:q2_width}
 \end{equation}
 
-取 $\theta=120^\circ$、$\alpha=1.5^\circ$、$D_0=120\text{ m}$，对 $\beta=0^\circ,45^\circ,\dots,315^\circ$ 与 $r=0,0.3,\dots,2.1$ 海里代入式 \eqref{eq:q2_depth}--\eqref{eq:q2_width}，结果如表~\ref{tab:q2} 所示。
+该式仍给出水平投影宽度，因而在后续布线时可继续与水平测线间距比较；二维覆盖几何没有改变，改变的只是航向对应的水深与等效坡度。
+
+式~\eqref{eq:q2_width} 是问题一覆盖关系的参数化调用：先确定局部水深和扫描剖面坡度，再计算水平覆盖宽度。
+
+该顺序保持了问题一的几何含义。航向只改变覆盖公式的输入，不改变水平投影宽度的定义；后续布线仍可直接把 $W(r,\beta)$ 及其左右半宽与测线间距比较。
+
+\subsection{计算结果}
+
+取 $\theta=120^\circ$、$\alpha=1.5^\circ$、$D_0=120\text{ m}$，对 $\beta=0^\circ,45^\circ,\ldots,315^\circ$ 与 $r=0,0.3,\ldots,2.1$ 海里计算，结果见表~\ref{tab:q2}。
 
 \begin{table}[H]
   \centering
-  \caption{问题二覆盖宽度 / m}
+  \caption{不同航向与距中心距离下的水平覆盖宽度 / m}
   \label{tab:q2}
   \begin{tabular}{lrrrrrrrr}
     \toprule
@@ -59,24 +75,25 @@
   \end{tabular}
 \end{table}
 
-在 $\beta=0^\circ$ 方向，覆盖宽度随船位距离由 $415.69\text{ m}$ 增至 $768.48\text{ m}$；在 $\beta=180^\circ$ 方向则随距离由 $415.69\text{ m}$ 降至 $62.90\text{ m}$；$\beta=90^\circ$ 与 $270^\circ$ 方向覆盖宽度不随距离变化，恒为 $416.55\text{ m}$。$45^\circ$、$135^\circ$、$225^\circ$、$315^\circ$ 方向介于上述情形之间，且关于 $\beta=90^\circ$ 与 $270^\circ$ 对称。方向与距离两个维度上的整体变化见图~\ref{fig:q2_heatmap}。
+$\beta=0^\circ$ 时船向深水方向航行，覆盖宽度随距离由 $415.69\text{ m}$ 增至 $768.48\text{ m}$；$\beta=180^\circ$ 时航向相反，水深下降使覆盖宽度降至 $62.90\text{ m}$。当 $\beta=90^\circ$ 或 $270^\circ$ 时，船沿等深线航行，水深保持 $D_0$，覆盖宽度恒为 $416.55\text{ m}$。其余四个斜向航向位于上述边界情形之间，并呈对称变化。图~\ref{fig:q2_heatmap} 以同一色标展示方向和距离的共同作用。
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.78\textwidth]{../figures/q2/fig_q2_heatmap.pdf}
-  \caption{覆盖宽度随测线方向夹角与船位距离变化的二维投影}
+  \caption{航向决定水深变化方向，并使水平覆盖宽度关于等深线方向呈对称分布}
   \label{fig:q2_heatmap}
 \end{figure}
 
-覆盖宽度的三维曲面形态见图~\ref{fig:q2_width_surface}：曲面沿 $\beta=0^\circ$ 方向随距离单调抬升、沿 $\beta=180^\circ$ 方向单调下降，在 $\beta=90^\circ$ 与 $270^\circ$ 方向保持等高，与表~\ref{tab:q2} 的数值一致。
+结果表明，航向既改变沿程水深，也改变覆盖尺度的稳定性。沿深水方向航行时末端覆盖宽度较大，但同一测线上的尺度变化明显；沿等深线航行时覆盖宽度保持恒定，为规则海域的一维布线提供了条件。
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.78\textwidth]{../figures/q2/fig_q2_width_surface.pdf}
-  \caption{覆盖宽度随测线方向夹角与船位距离变化的三维曲面}
-  \label{fig:q2_width_surface}
-\end{figure}
+$\beta=45^\circ$ 与 $315^\circ$ 的覆盖宽度随距离同步增加，$135^\circ$ 与 $225^\circ$ 则同步减小，且变化幅度小于正向坡向。这说明斜向航行同时受到沿程水深和横向坡度影响，其覆盖尺度位于两类特殊航向之间。单点覆盖宽度较大不代表整条测线更易布设，沿程稳定性同样影响相邻线间距的确定。
 
-\subsection{特殊航向检验}
+\subsection{特殊航向验证}
 
-当 $\beta=0^\circ$ 或 $180^\circ$ 时，测线方向沿坡面法向的水平投影，垂直测线剖面沿等深线方向，$\alpha_{\mathrm{eff}}=0$，公式退化为平底形式 $W=2D\tan(\theta/2)$，覆盖宽度仅随船位水深变化；当 $\beta=90^\circ$ 或 $270^\circ$ 时，船沿等深线运动，$D(r,\beta)=D_0$，覆盖宽度不随距离变化，与表~\ref{tab:q2} 中这两行恒为 $416.55\text{ m}$ 一致。整体上覆盖宽度随船位水深增大而增大，$\beta=0^\circ$ 行随距离递增、$\beta=180^\circ$ 行随距离递减，与式 \eqref{eq:q2_depth} 中水深项的符号一致。
+当 $\beta=0^\circ$ 或 $180^\circ$ 时，$\alpha_{\mathrm{eff}}=0$，式~\eqref{eq:q2_width} 退化为 $W=2D\tan(\theta/2)$，覆盖宽度只随船位水深改变；当 $\beta=90^\circ$ 或 $270^\circ$ 时，$D(r,\beta)=D_0$，表~\ref{tab:q2} 中对应两行恒为 $416.55\text{ m}$。解析极限与数值结果一致，说明航向分解没有改变问题一的物理含义。
+
+此外，$45^\circ$ 与 $315^\circ$、$135^\circ$ 与 $225^\circ$ 两组结果分别相同，符合关于坡面法向的镜像对称关系。特殊角度退化和成对对称同时成立，验证了方向、距离与深浅符号的一致性。
+
+两类检验互为补充：特殊航向检查模型能否退化到已知二维关系，镜像对称检查航向角的符号与周期性。二者均不依赖额外参数，可直接由解析式与题面结果表交叉核对。
+
+问题二回答了任意航向下单条测线“能够覆盖多宽”，但尚未决定多条测线“应放在何处”。下一问利用规则坡面的等深线平行结构固定航向，并把覆盖公式嵌入边界与重叠约束，进一步求解测线位置和总长度。
